@@ -1,0 +1,49 @@
+[
+    {
+        "freelancer_id": "",
+        "firstname": "",
+        "lastname": "",
+        "phone": "",
+        "picture": "https://via.placeholder.com/150x150",
+        "email": "",
+        "password": "",
+        "portfolio": "",
+        "occupation": "",
+        "skill": "",
+        "education": "",
+        "certification": "",
+        "website": "",
+        "linkedin": "",
+        "github": "",
+        "street": "",
+        "local_govt": "",
+        "state": "",
+        "country": ""
+    },
+    {
+        "service_id": "",
+        "freelancer_id": "",
+        "title": "",
+        "category": "",
+        "subcategory": "",
+        "description": "",
+        "picture": "",
+        "charge": "",
+        "discountCharge": "",
+        "discountTitle": "",
+        "discountDescrition": "",
+        "searchtag": ""
+    },
+    {
+        "favourite_id": "",
+        "user_id": "",
+        "freelancer_id": ""
+    },
+    {
+        "order_id": "",
+        "freelancer_id": "",
+        "service_id": "",
+        "charge": "",
+        "date": ""
+    }
+]

@@ -1,0 +1,228 @@
+type Freelancer {
+  id:String!
+  firstname:String
+  lastname:String
+  phone:String
+  picture:String
+  coverpicture:String
+  email: String
+  password:String
+  about:String
+  portfolio:String
+  occupation:String
+  jobTitle:String
+  hourlyRate:String
+  location:String
+  language:String
+  skill:String
+  education:String
+  certification:String
+  website:String
+  linkedin:String
+  github:String
+  street:String
+  local_govt:String
+  state:String
+  country:String
+}
+
+type Portfolio {
+id:ID
+title:String
+description:String
+startDate:Date
+endDate:Date
+}
+
+type Education {
+id:ID!
+institution:String
+course:String
+description:String
+startDate:Date
+endDate:Date
+}
+
+type Certification {
+id:ID!
+title:String
+description:String
+issuedDate:Date
+}
+
+type Offer {
+  id:ID!
+  freelancer_id:Int
+  title: String
+  category:String
+  subcategory:String
+  picture:String
+  description:String
+  charge:String
+  deliveryperiod:String
+  searchtag:String
+}
+
+type Addon {
+  id:ID!
+  title:String
+  charge:String
+  deliveryperiod:String
+}
+
+type Review{
+  id:ID!
+  firstname:String
+  lastname:String
+  rating:String
+  message:String
+  date:String
+}
+
+type File {
+    filename: String!
+    mimetype: String!
+    encoding: String!
+  }
+
+type Communication{
+  id:ID!
+  user_id:Int
+  freelancer_id:Int
+  content:String
+  date:String
+}
+
+type Notification{
+  id:ID!
+  title:String
+  content:String
+  date:String
+}
+
+type Order {
+  id:ID!
+  user_id:Int
+  freelancer_id:Int
+  offer_id:Int
+  price:Int
+  date:String
+}
+
+type Favourite {
+  id:ID!
+  user_id:Int
+  offer_id:Int
+}
+
+type User {
+  id: ID!
+  name: String!
+  firstname:String
+  lastname:String
+  phone:String
+  picture:String
+  email: String
+  password:String
+  occupation:String
+  about:String
+  company:String
+  address:String
+  localgovt:String
+  state:String
+  country:String
+}
+
+type Section {
+   title:String
+   data:[Product]
+}
+
+type Student {
+   id:ID!
+   firstName:String
+   lastName:String
+   password:String
+   collegeId:String
+   fullName:String
+}
+
+type RandomDie {
+  numSides: Int!
+  rollOnce: Int!
+  roll(numRolls: Int!): [Int]
+}
+
+type FullName {
+  obj:String!
+  fullname:String
+}
+
+type Book {
+    title: String
+    author: String
+  }
+ 
+type Message {
+  id: ID!
+  content: String
+  author: String
+}
+
+type Rate {
+  currency:String
+  rate:String
+}
+
+input MessageInput {
+  content: String
+  author: String
+}
+
+type Product {
+  product_id:Int
+  product_name:String
+}
+
+scalar Upload
+
+scalar Void
+
+scalar Date
+
+type Query {
+    quoteOfTheDay: String
+    random: Float!
+    rollThreeDice: [Int]
+    test: String
+    rest:String
+    fullname:String
+    greeting:String
+    students:[Student]
+    studentById(id:String!):Student 
+    getFullName(id:String):String
+    getDie(numSides: Int): RandomDie
+    getFull(obj:String):FullName
+    getMessage(id: ID!): Message
+    ip: String
+    books: [Book]
+    users: [User!]!
+    user(id: ID!): User
+    rates(currency:String!):[Rate]
+    products(id:Int!):Product
+    otherFields: Boolean!
+    freelancers:[Freelancer]
+    freelancerById(freelancer_id:String!):Freelancer
+    offers:[Offer]
+    offerById(service_id:ID!):Offer
+    productByCategory:[Section]
+  }
+
+type Mutation {
+  setMessage(message: String): String
+  createMessage(input: MessageInput): Message
+  updateMessage(id: ID!, input: MessageInput): Message
+  createUser(name: String!): User!
+  singleUpload(file: Upload!): File!
+  updateFreelancer(id:ID,firstname:String):Void
+}

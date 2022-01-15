@@ -1,0 +1,29 @@
+{
+  "name": "apolloserver",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon --ignore data/ server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "apollo-server": "^3.5.0",
+    "apollo-server-express": "^3.5.0",
+    "datasource-sql": "^1.6.0",
+    "dotenv": "^10.0.0",
+    "express": "^4.17.1",
+    "graphql": "^15.7.2",
+    "graphql-upload": "^12.0.0",
+    "knex": "^0.95.14",
+    "mysql": "^2.18.1",
+    "notarealdb": "^0.2.2",
+    "pg": "^8.7.1"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.15"
+  }
+}
