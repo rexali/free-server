@@ -1,175 +1,228 @@
-const { students } = require('./db');
+const { GraphQLUpload, } = require('graphql-upload');
+const { PrismaClient } = require('@prisma/client');
+
+const authentication = require('./model/authentication');
+const users = require('./model/user');
+const services = require("./model/service");
+const files = require("./model/file");
+
 const db = require('./db');
 
-class RandomDie {
-    constructor(numSides) {
-        this.numSides = numSides;
-    }
-
-    rollOnce() {
-        return 1 + Math.floor(Math.random() * this.numSides);
-    }
-
-    roll({ numRolls }) {
-        var output = [];
-        for (var i = 0; i < numRolls; i++) {
-            output.push(this.rollOnce());
-        }
-        return output;
-    }
-
-}
-
-class FullName {
-    constructor(obj) {
-        this.obj = obj;
-    }
-
-    fullname() {
-        return db.students.get(this.obj).firstName + " : " + db.students.get(this.obj).firstName
-    }
-
-}
-
-// If Message had any complex fields, we'd put them on this object.
-class Message {
-    constructor(id, { content, author }) {
-        this.id = id;
-        this.content = content;
-        this.author = author;
-    }
-}
-
-
-var fakeDatabase = {};
-
-const books = [
-    {
-        title: 'The Awakening',
-        author: 'Kate Chopin',
-    },
-    {
-        title: 'City of Glass',
-        author: 'Paul Auster',
-    },
-];
+const prisma = new PrismaClient()
 
 const resolvers = {
+
+    Upload: GraphQLUpload,
+
     Query: {
-        books: () => books,
+         // test server
+         test: () => 'Test Success, GraphQL server is up & running !!',
 
-        test: () => 'Test Success, GraphQL server is up & running !!',
+        /**
+         * Handle authentication of a user 
+         *
+         * @param {object} _ represent arguement
+         * @param {object} data object
+         * @returns a boolean value
+         */
+        handleLogin: async (_, { data: { email, password, role } }) => {
 
-        rest: () => 'Test Success, GraphQL server is up & running !!',
-
-        quoteOfTheDay: () => {
-            return Math.random() < 0.5 ? 'Take it easy' : 'Salvation lies within';
+            return await authentication.authenticate(email, password, role)
         },
 
-        random: () => {
-            return Math.random();
-        },
+        /**
+         * Read a user datail from the user table
+         * 
+         * @param {Int} id 
+         * @returns  an object of user
+         */
+        getOneUser: async (_, { id }) => {
+            try {
 
-        rollThreeDice: () => {
-            return [1, 2, 3].map(_ => 1 + Math.floor(Math.random() * 6));
-        },
-
-        greeting: () => {
-            return "hello from  TutorialsPoint is good ooooo!!!"
-        },
-
-        students: () => db.students.list(),
-        // get all the offers
-        offers: () => db.offers.list(),
-        //   get the offer by id
-        offerById: (parent, { service_id }, context, info) => {
-            return db.offers.get(service_id)
-        },
-        // get all the freelancers
-        freelancers: () => db.users.list(),
-        //   get the freelancer by id
-        freelancerById: (parent, args, context, info) => {
-            return db.users.get(args.freelancer_id)
-        },
-
-        studentById: (parent, args, context, info) => {
-            return db.students.get(args.id)
-        },
-
-        getDie: (parent, args, context, info) => {
-            return new RandomDie(args.numSides || 6);
-        },
-
-        getFull: (parent, { obj }, context, info) => {
-            return new FullName(obj);
-        },
-
-        getFullName: (parent, args, context, info) => db.students.get(args.id).firstName + " : " + db.students.get(args.id).firstName,
-
-
-        getMessage: (parent, { id }, context, info) => {
-            if (!fakeDatabase[id]) {
-                throw new Error('no message exists with id ' + id);
+                return await users.getOneUser(id);
+            } catch (error) {
+                console.log(error)
             }
-            return new Message(id, fakeDatabase[id]);
         },
 
-        rates: (parent, { currency }, context, info) => {
-            return db.exchanges.list()
+        /**
+         * Read all users from the user table 
+         * 
+         * @returns array of user objects
+         */
+        getManyUsers: async () => {
+
+            return users.getManyUsers();
         },
 
-        ip: function (args, request) {
-            return request.ip;
+        /**
+         * Get many services fro the table
+         * 
+         * @returns array of service objects
+         */
+        getManyServices: async () => {
+
+            return await services.getManyServices();
         },
 
-        products: (_, { id }) => {
-            return db.client.from("products").where({ product_id: id }).first();
+        /**
+         * Get a service of a given id
+         * 
+         * @param {object} parent 
+         * @param {Int} id id of a service 
+         * @returns a service object 
+         */
+        getOneService: async (parent, { id }) => {
+
+            return await services.getOneService(id);
         },
 
-        productByCategory: async(parent, args, context, info) => {
-            let sectiondata = [];
-            let products = await db.mysql.readAll("select * from products");
-            let category = Array.from(new Set(products.map((item) => item.product_category)));
-            category.forEach((item) => {
-                sectiondata.push({
-                    title: item,
-                    data: [...products.filter(product=>product.product_category===item)]
-                }
-                );
-            });
+        /**
+         * Get a service plus its associated added services or add-ons
+         * 
+         * @param {object} _ 
+         * @param {Int} id an id of a given service 
+         * @returns an object of service
+         */
+        getOneServicePlusAddon: async (_, { id }) => {
 
-            return sectiondata;
-        }
+            return services.getOneServiceAndAddons(id);
+        },
+
+        /**
+         * Get all services with respected add-on services
+         * 
+         * @returns array of object of service
+         */
+        getManyServicesPlusAddon: async () => {
+
+            return await services.getAllServicesAndAddons();
+        },
+ 
     },
 
     Mutation: {
 
-        createMessage: (parent, { input }, context, info) => {
-            // Create a random id for our "database".
-            var id = require('crypto').randomBytes(10).toString('hex');
-            fakeDatabase[id] = input;
-            return new Message(id, input);
-        },
+        /**
+         * Register a user
+         * 
+         * @param {obect} _ 
+         * @param {object} data an object of user
+         * @returns an boolean value of success or failure
+         */
+        handleRegisteration: async (_, { data }) => {
 
-        updateMessage: (parent, { id, input }, context, info) => {
-            if (!fakeDatabase[id]) {
-                throw new Error('no message exists with id ' + id);
+            const newUser = await prisma.user.create({
+                data: data
+            })
+
+            if (newUser) {
+
+                return true;
             }
-            // This replaces all old data, but some apps might want partial update.
-            fakeDatabase[id] = input;
-            return new Message(id, input);
+
+            return false;
+
         },
 
-        setMessage: (parent, { message }, context, info) => {
-            fakeDatabase.message = message;
-            return message;
+        /**
+         * Insert a user detail into the user table
+         * 
+         * @param {object} user 
+         * @returns an object of user
+         */
+        createOneUser: async (parent, { user }) => {
+
+            return await users.createOneUser(user);
         },
 
-        updateFreelancer: (parent, { id, firstname }, context, info) => {
-            db.users.update({ id: id, firstname: firstname })
-        }
+        /**
+         * Insert many users to user table (populate user table)
+         * 
+         * @returns  an integer number of entries
+         */
+        createManyUsers: async () => {
+            const result = await prisma.user.createMany({
+                data: (await import('./data/mock-data')).MOCK_DATA,
+                // data:require('./data/mock-data').MOCK_DATA
+            })
+
+            return result.count;
+        },
+
+        /**
+         * Update a user in the user table
+         * 
+         * @param {object} user 
+         * @returns an object of updated user
+         */
+        updateOneUser: async (parent, { user }) => {
+
+            return await users.updateOneUser(user)
+        },
+
+        /**
+         * Delete a user from user table 
+         * 
+         * @param {Int} id a given id of user 
+         * @returns an object of a deleted user
+         */
+        deleteOneUser: async (parent, { id }) => {
+
+            return await users.deleteOneUser(id);
+        },
+
+        /**
+         * Delete a service or offer from user table 
+         * 
+         * @param {Int} id 
+         * @returns an object of a service
+         */
+        deleteService: async (_, { id }) => {
+
+            return await services.deleteOneService(id);
+        },
+
+        /**
+         * Insert a serviceinto the user table
+         * 
+         * @param {object} service an object of a service
+         * @returns an object of a service
+         */
+        addService: async (_, { service }) => {
+
+            return await services.createOneService(service);
+        },
+
+        /**
+        * update a service in the service table
+        * 
+        * @param {object} user 
+        * @returns result
+        */
+        updateService: async (_, { service }) => {
+
+            return await services.updateOneService(service)
+        },
+
+        /**
+         * upload a single file 
+         *
+         * @param {object} parent 
+         * @param {object} file 
+         * @returns an object of file
+         */
+        singleUpload: async (parent, { file }) => {
+
+            return await files.uploadOneFile(file)
+        },
+
 
     },
+
+    // Subscription: {
+
+    // }
 
 }
 

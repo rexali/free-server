@@ -1,0 +1,216 @@
+// This is your Prisma schema file,
+// learn more about it in the docs   https  //pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  // provider = "postgresql"
+  // provider = "mongodb"
+  provider = "mysql"
+  // provider = "sqlserver" url:"sqlserver://localhost:1433; initial catalog=sample;user=rexali;password=mypassword"
+  // provider = "sqlite" // url = "file:./dev.db"
+  url      = env("DATABASE_URL")
+}
+
+model Skill {
+  id       Int    @id @default(autoincrement())
+  name     String
+  year_exp String
+  user     User?  @relation(fields: [user_id], references: [id])
+  user_id  Int?
+}
+
+model Address {
+  id         Int    @id @default(autoincrement())
+  street     String
+  local_govt String
+  state      String
+  country    String
+  user       User?  @relation(fields: [user_id], references: [id])
+  user_id    Int?
+}
+
+model Experience {
+  id          Int      @id @default(autoincrement())
+  started_at  DateTime
+  ended_at    DateTime
+  employer    String
+  description String
+  user        User?    @relation(fields: [user_id], references: [id])
+  user_id     Int?
+}
+
+model Portfolio {
+  id          Int     @id @default(autoincrement())
+  title       String?
+  description String?
+  startDate   String?
+  endDate     String?
+  user        User?   @relation(fields: [user_id], references: [id])
+  user_id     Int?
+}
+
+model Education {
+  id          Int      @id @default(autoincrement())
+  institution String
+  course      String
+  description String
+  started_at  DateTime
+  ended_at    DateTime
+  user        User?    @relation(fields: [user_id], references: [id])
+  user_id     Int?
+}
+
+model Certification {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String
+  issued_at   DateTime
+  user        User?    @relation(fields: [user_id], references: [id])
+  user_id     Int?
+}
+
+model Service {
+  id              Int     @id @default(autoincrement())
+  title           String
+  category        String
+  subcategory     String
+  picture         String
+  description     String
+  charge          String
+  delivery_period String
+  search_tag      String?
+  hourly_rate     String
+  user            User?   @relation(fields: [user_id], references: [id])
+  user_id         Int?
+  addons          Addon[]
+  order           Order?  @relation(fields: [order_id], references: [id])
+  order_id        Int?
+}
+
+model Addon {
+  id         Int      @id @default(autoincrement())
+  title      String
+  charge     Int
+  service    Service? @relation(fields: [service_id], references: [id])
+  service_id Int?
+}
+
+model Promotion {
+  id         Int      @id @default(autoincrement())
+  channel    String
+  charge     String
+  message    String
+  created_at DateTime
+  user       User?    @relation(fields: [user_id], references: [id])
+  user_id    Int?
+}
+
+model Review {
+  id         Int      @id @default(autoincrement())
+  name       String
+  rating     Int
+  message    String
+  created_at DateTime
+  user       User?    @relation(fields: [user_id], references: [id])
+  user_id    Int?
+}
+
+model Message {
+  id         Int      @id @default(autoincrement())
+  name       String
+  email      String
+  subject    String
+  message    String
+  created_at DateTime
+  user       User?    @relation(fields: [user_id], references: [id])
+  user_id    Int?
+}
+
+model Notification {
+  id         Int      @id @default(autoincrement())
+  title      String
+  content    String
+  created_at DateTime
+  user       User?    @relation(fields: [user_id], references: [id])
+  user_id    Int?
+}
+
+model Order {
+  id             Int       @id @default(autoincrement())
+  addon_id       Int
+  charge         Int       @default(0)
+  payment_status String
+  created_at     DateTime
+  user           User?     @relation(fields: [user_id], references: [id])
+  user_id        Int?
+  services       Service[]
+}
+
+model Account {
+  id         Int       @id @default(autoincrement())
+  balance    Int?
+  created_at DateTime?
+  updated_at DateTime?
+  user       User?     @relation(fields: [user_id], references: [id])
+  user_id    Int?      @unique
+
+}
+
+model Transaction {
+  id                 Int      @id @default(autoincrement())
+  service_id         Int
+  transaction_amount Int
+  transaction_type   String
+  transaction_date   DateTime
+  user               User?    @relation(fields: [user_id], references: [id])
+  user_id            Int?
+}
+
+model Cart {
+  id         Int   @id @default(autoincrement())
+  service_id Int
+  user       User? @relation(fields: [user_id], references: [id])
+  user_id    Int?
+}
+
+model Favourite {
+  id         Int   @id @default(autoincrement())
+  service_id Int
+  user       User? @relation(fields: [user_id], references: [id])
+  user_id    Int?
+}
+
+model User {
+  id             Int             @id @default(autoincrement())
+  first_name     String?
+  last_name      String?
+  password       String
+  phone          String?
+  email          String          @unique
+  picture        String?
+  role           String
+  token          String?
+  cover_picture  String?
+  job_title      String?
+  about          String?
+  company        String?
+  fund_account   Account?
+  addresses      Address[]
+  experiences    Experience[]
+  portfolios     Portfolio[]
+  certifications Certification[]
+  educations     Education[]
+  services       Service[]
+  skills         Skill[]
+  reviews        Review[]
+  orders         Order[]
+  favourites     Favourite[]
+  promotions     Promotion[]
+  carts          Cart[]
+  transactions   Transaction[]
+  messages       Message[]
+  notifications  Notification[]
+}

@@ -4,13 +4,15 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon --ignore data/ server.js",
+    "start": "nodemon --ignore data/ app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@graphql-tools/schema": "^8.3.1",
+    "@prisma/client": "^3.8.1",
     "apollo-server": "^3.5.0",
     "apollo-server-express": "^3.5.0",
     "datasource-sql": "^1.6.0",
@@ -21,9 +23,11 @@
     "knex": "^0.95.14",
     "mysql": "^2.18.1",
     "notarealdb": "^0.2.2",
-    "pg": "^8.7.1"
+    "pg": "^8.7.1",
+    "subscriptions-transport-ws": "^0.11.0"
   },
   "devDependencies": {
-    "nodemon": "^2.0.15"
+    "nodemon": "^2.0.15",
+    "prisma": "^3.8.1"
   }
 }

@@ -2,7 +2,7 @@ const { DataStore } = require('notarealdb');
 
 const knex = require("knex");
 
-const mysql = require("./mysql/dbHelpers")
+const mysql = require("./model/dbHelpers")
 
 const store = new DataStore('./data');
 

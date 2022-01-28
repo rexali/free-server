@@ -72,6 +72,7 @@ type Product {
 # case, the "books" query returns an array of zero or more Books (defined above).
 
 type Query {
+  
    quoteOfTheDay: String
    random: Float!
    rollThreeDice: [Int]
