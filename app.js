@@ -1,8 +1,8 @@
 require('dotenv').config();
 const express = require('express');
-const { 
-  ApolloServer, 
-  gql 
+const {
+  ApolloServer,
+  gql
 } = require('apollo-server-express');
 const fs = require('fs');
 const {
@@ -10,7 +10,12 @@ const {
   graphqlUploadExpress, // A Koa implementation is also exported.
 } = require('graphql-upload');
 
-const {PrismaClient} = require('@prisma/client');
+const { createServer } = require('http');
+const { execute, subscribe } = require('graphql');
+const { SubscriptionServer } = require('subscriptions-transport-ws');
+const { makeExecutableSchema } = require('@graphql-tools/schema');
+
+const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient()
 
 // type definition, Altrnatively, const typeDefs = require("./schema");
@@ -18,17 +23,31 @@ const typeDefs = fs.readFileSync('./schema.graphql', { encoding: 'utf-8' });
 // resolvers for the schema query, mutation, subscription
 const resolvers = require('./resolvers');
 
-const loggingHandler = (req,res,next)=>{
-  console.log("IP Address: "+ req.ip);
+const loggingHandler = (req, res, next) => {
+  console.log("IP Address: " + req.ip);
   next()
 }
 // start server
 async function startServer() {
 
+  const app = express();
+  // This `app` is the returned value from `express()`.
+  const httpServer = createServer(app);
+
+  const schema = makeExecutableSchema({ typeDefs, resolvers });
+  // ...
   const server = new ApolloServer({
-    typeDefs,
-    resolvers,
-    dataSources:()=>({client:prisma}),
+    schema,
+    plugins: [{
+      async serverWillStart() {
+        return {
+          async drainServer() {
+            subscriptionServer.close();
+          }
+        };
+      }
+    }],
+    dataSources: () => ({ client: prisma }),
     introspection: process.env.NODE_ENV !== 'production',
     apollo: {
       key: process.env.APOLLO_KEY,
@@ -41,14 +60,26 @@ async function startServer() {
       // add the token to the context
       return {
         req,
-        token 
+        token
       };
-     },
+    },
+  });
+
+  const subscriptionServer = SubscriptionServer.create({
+    // This is the `schema` we just created.
+    schema,
+    // These are imported from `graphql`.
+    execute,
+    subscribe,
+  }, {
+    // This is the `httpServer` we created in a previous step.
+    server: httpServer,
+    // Pass a different path here if your ApolloServer serves at
+    // a different path.
+    path: '/graphql',
   });
 
   await server.start();
-
-  const app = express();
 
   // This middleware should be added before calling `applyMiddleware`.
   app.use(graphqlUploadExpress());
@@ -57,7 +88,7 @@ async function startServer() {
 
   server.applyMiddleware({ app });
 
-  await new Promise(resolve => app.listen({ port: 4000 }, resolve));
+  await new Promise(resolve => httpServer.listen({ port: 4000 }, resolve));
 
   console.log(`🚀 Server ready at http://localhost:4000${server.graphqlPath}`);
 

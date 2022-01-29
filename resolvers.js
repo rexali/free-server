@@ -1,11 +1,14 @@
 const { GraphQLUpload, } = require('graphql-upload');
 const { PrismaClient } = require('@prisma/client');
-
+const { PubSub,PubSubEngine } = require('graphql-subscriptions');
+//  for development
+const pubsub = new PubSub();
+// for production
+// class pub = PubSubEngine()
 const authentication = require('./model/authentication');
 const users = require('./model/user');
 const services = require("./model/service");
 const files = require("./model/file");
-
 const db = require('./db');
 
 const prisma = new PrismaClient()
@@ -15,8 +18,16 @@ const resolvers = {
     Upload: GraphQLUpload,
 
     Query: {
-         // test server
-         test: () => 'Test Success, GraphQL server is up & running !!',
+        // test server
+        // test: () => 'Test Success, GraphQL server is up & running !!',
+        testsubscription: () => {
+            pubsub.publish('POST_CREATED', {
+                postCreated: {
+                  author: 'Ali Baba',
+                  comment: 'Open sesame'
+                }
+              });
+        },
 
         /**
          * Handle authentication of a user 
@@ -98,7 +109,7 @@ const resolvers = {
 
             return await services.getAllServicesAndAddons();
         },
- 
+
     },
 
     Mutation: {
@@ -220,9 +231,14 @@ const resolvers = {
 
     },
 
-    // Subscription: {
-
-    // }
+    Subscription: {
+        postCreated: {
+            // for development
+            subscribe: () =>pubsub.asyncIterator(['POST_CREATED']),
+            // for production
+            // subscribe: () => PubSubEngine(['POST_CREATED']),
+        },
+    },
 
 }
 

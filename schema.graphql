@@ -353,6 +353,8 @@ type Query {
   getOneServicePlusAddon(id:Int):Service
   getManyServicesPlusAddon:Service
 
+  testsubscription:String
+  
   # This is only here to satisfy the requirement that at least one
   # field be present within the 'Query' type.  This example does not
   # demonstrate how to fetch uploads back.
@@ -365,6 +367,7 @@ type Query {
   getFull(obj:String):FullName
   ip:String
   productByCategory:[Section]
+
 }
 
 type Mutation {
@@ -383,3 +386,11 @@ type Mutation {
   singleUpload(file: Upload!): File!
 }
 
+type Post {
+  author:String
+  comment:String
+}
+
+type Subscription {
+  postCreated: Post
+}
