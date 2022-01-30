@@ -1,10 +1,10 @@
 const { GraphQLUpload, } = require('graphql-upload');
 const { PrismaClient } = require('@prisma/client');
-const { PubSub,PubSubEngine } = require('graphql-subscriptions');
+const { PubSub, PubSubEngine, withFilter } = require('graphql-subscriptions');
+
 //  for development
 const pubsub = new PubSub();
-// for production
-// class pub = PubSubEngine()
+
 const authentication = require('./model/authentication');
 const users = require('./model/user');
 const services = require("./model/service");
@@ -12,6 +12,7 @@ const files = require("./model/file");
 const db = require('./db');
 
 const prisma = new PrismaClient()
+const SOMETHING_CHANGED_TOPIC = 'something_changed';
 
 const resolvers = {
 
@@ -19,7 +20,8 @@ const resolvers = {
 
     Query: {
         // test server
-        // test: () => 'Test Success, GraphQL server is up & running !!',
+        test: () => 'Test Success, GraphQL server is up & running !!',
+
         testsubscription: () => {
             pubsub.publish('POST_CREATED', {
                 postCreated: {
@@ -228,17 +230,53 @@ const resolvers = {
             return await files.uploadOneFile(file)
         },
 
+        createPost(parent, args, context) {
+            pubsub.publish('POST_CREATED', { postCreated: args });
+            return args;
+            // return postController.createPost(args);
+        },
+        createComment(parent, args, context) {
+            pubsub.publish('COMMENT_ADDED', { commentAdded: args });
+            return args;
+            // return postController.createPost(args);
+        },
+
+        createSomething: (_, args)=>{
+            pubsub.publish(
+                SOMETHING_CHANGED_TOPIC, { somethingChanged: { id: "124" } }
+            );
+            return args;
+        }
 
     },
 
     Subscription: {
+
         postCreated: {
             // for development
-            subscribe: () =>pubsub.asyncIterator(['POST_CREATED']),
-            // for production
-            // subscribe: () => PubSubEngine(['POST_CREATED']),
+            subscribe: () => pubsub.asyncIterator(['POST_CREATED']),
         },
-    },
+
+        somethingChanged: {
+            subscribe: withFilter(
+                (_, args) => pubsub.asyncIterator(`${SOMETHING_CHANGED_TOPIC}_${args.id}`),
+                (payload, variables) => {
+                    return payload.somethingChanged.id === variables.id
+                }
+            ),
+        },
+
+        commentAdded: {
+            subscribe: withFilter(
+                () => pubsub.asyncIterator('COMMENT_ADDED'),
+                (payload, variables) => {
+                    // Only push an update if the comment is on
+                    // the correct repository for this operation
+                    return (payload.commentAdded.id !== variables.id);
+                },
+            ),
+        },
+    }
 
 }
 

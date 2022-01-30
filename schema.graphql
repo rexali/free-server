@@ -384,6 +384,10 @@ type Mutation {
   deleteService(id:Int):Service
 
   singleUpload(file: Upload!): File!
+
+  createPost(author: String, comment: String): Post
+  createSomething(id:Int):Result
+  createComment(id:Int,content:String):Comment
 }
 
 type Post {
@@ -391,6 +395,17 @@ type Post {
   comment:String
 }
 
+type Comment {
+  id:Int
+  content:String
+}
+
+type Result {
+    id: String
+}
+
 type Subscription {
   postCreated: Post
+  somethingChanged(id:Int):Result
+  commentAdded:Comment
 }
