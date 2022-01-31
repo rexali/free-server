@@ -1,7 +1,7 @@
 const sum = require('./sum');
 
 describe("", () => {
-    it('Given 1 and 2, then the sum() method return or to equal 3', (done) => {
+    it('Given 1 and 2, then the sum() should return or to equal 3', (done) => {
         expect(sum(1, 2)).toBe(3);
         done();
 

@@ -25,7 +25,7 @@ const loggingHandler = (req, res, next) => {
   next()
 }
 
-(async function() {
+var httpServer=(async function() {
   const app = express();
   // This `app` is the returned value from `express()`.
   const httpServer = createServer(app);
@@ -84,10 +84,9 @@ const loggingHandler = (req, res, next) => {
 
   server.applyMiddleware({ app });
 
-  const PORT = 4000;
-  httpServer.listen(PORT, () =>
-    console.log(`🚀 Server is now running on http://localhost:${PORT}/graphql`)
-  );
-  // module.exports={httpServer};
+  return httpServer;
+  
 })();
+
+module.exports={httpServer};
 
