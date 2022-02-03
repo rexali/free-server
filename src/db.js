@@ -2,9 +2,9 @@ const { DataStore } = require('notarealdb');
 
 const knex = require("knex");
 
-const mysql = require("./model/dbHelpers")
+const mysql = require("../model/dbHelpers")
 
-const store = new DataStore('./data');
+const store = new DataStore('../data');
 
 const client = knex({
     client: "mysql",

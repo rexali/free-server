@@ -1,10 +1,11 @@
 require('dotenv').config();
+const path = require('path');
+const fs = require('fs');
 const express = require('express');
 const {
   ApolloServer,
   gql
 } = require('apollo-server-express');
-const fs = require('fs');
 const {
   GraphQLUpload,
   graphqlUploadExpress, // A Koa implementation is also exported.
@@ -16,7 +17,7 @@ const { makeExecutableSchema } = require('@graphql-tools/schema');
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient()
 // type definition, Altrnatively, const typeDefs = require("./schema");
-const typeDefs = fs.readFileSync('./schema.graphql', { encoding: 'utf-8' });
+const typeDefs = fs.readFileSync('./src/schema.graphql', { encoding: 'utf-8' });
 // resolvers for the schema query, mutation, subscription
 const resolvers = require('./resolvers');
 
@@ -25,7 +26,7 @@ const loggingHandler = (req, res, next) => {
   next()
 }
 
-var httpServer=(async function() {
+var httpServer = (async function () {
   const app = express();
   // This `app` is the returned value from `express()`.
   const httpServer = createServer(app);
@@ -76,17 +77,26 @@ var httpServer=(async function() {
   });
 
   await server.start();
-
   // This middleware should be added before calling `applyMiddleware`.
   app.use(graphqlUploadExpress());
+  // path
+  app.use('/', (req, res, next) => { 
+    console.log("I am working");
+    next(); 
+  });
   // use the logging handler
-  app.use(loggingHandler)
+  app.use(loggingHandler);
+  // static files
+  
+  app.use(express.static("upload"));
+
+  app.use("/upload", express.static("upload"));
 
   server.applyMiddleware({ app });
 
   return httpServer;
-  
+
 })();
 
-module.exports={httpServer};
+module.exports = { httpServer };
 

@@ -1,0 +1,418 @@
+const { ApolloServer, gql } = require('apollo-server');
+
+const typeDefs = gql`
+scalar Upload
+
+scalar Void
+
+scalar Date
+
+input MessageInput {
+  content: String
+  author: String
+}
+
+type File {
+    filename: String!
+    mimetype: String!
+    encoding: String!
+}
+
+type Freelancer {
+  id:String!
+  firstname:String
+  lastname:String
+  phone:String
+  picture:String
+  coverpicture:String
+  email: String
+  password:String
+  about:String
+  portfolio:String
+  occupation:String
+  jobTitle:String
+  hourlyRate:String
+  location:String
+  language:String
+  skill:String
+  education:String
+  certification:String
+  website:String
+  linkedin:String
+  github:String
+  street:String
+  local_govt:String
+  state:String
+  country:String
+}
+
+type Link {
+  website:String
+  linkedin:String
+  github:String
+}
+
+type Language {
+  id:Int!
+  name:String
+}
+
+type Skill {
+  id:Int!
+  name:String
+  year_of_exp:String
+}
+
+type Profile {
+  id:Int!
+  first_name:String
+  last_name:String
+  phone:String
+  email: String
+  picture:String
+  cover_picture:String
+}
+
+type Address {
+  id:Int!
+  street:String
+  local_govt:String
+  state:String
+  country:String
+}
+
+type Cart {
+  id:Int
+  service_id:Int
+  user_id:Int
+}
+
+type Experience {
+id:Int
+started_at:Date
+ended_at:Date
+employer:String
+description:String
+}
+
+type Portfolio {
+id:ID
+title:String
+description:String
+startDate:Date
+endDate:Date
+}
+
+type Education {
+id:Int!
+institution:String
+course:String
+description:String
+startDate:Date
+endDate:Date
+}
+
+type Certification {
+id:Int!
+title:String
+description:String
+issued_at:Date
+}
+
+type Service {
+  id:Int!
+  title: String
+  category:String
+  subcategory:String
+  picture:String
+  description:String
+  charge:String
+  delivery_period:String
+  search_tag:String
+  hourly_rate:String
+}
+
+type Addon {
+  id:Int!
+  title:String
+  charge:Int
+}
+
+type Review{
+  id:Int!
+  name:String
+  rating:Int
+  message:String
+  created_at:String
+}
+
+type Notification {
+  id:Int!
+  title:String
+  content:String
+  created_at:String
+}
+
+type Account {
+  id:Int
+  balance:Int
+  created_at:Date
+  updated_at:Date
+}
+
+type Transaction {
+  id:Int
+  transaction_amount:Int
+  transaction_type:String
+  transaction_date:Date
+}
+
+type Order {
+  id:Int!
+  user_id:Int
+  addon_id:Int
+  service_id:Int
+  charge:Int
+  payment_status:String
+  created_at:String
+}
+
+type Favourite {
+  id:Int!
+  user_id:Int
+  offer_id:Int
+}
+
+type Promotion {
+  id:Int
+  channel:String
+  charge:String
+  message:String
+}
+
+input RegisterInput {
+email:String
+password:String
+role:String
+}
+
+input LoginInput {
+email:String
+password:String
+role:String
+}
+
+type User {
+  id: Int!
+  firstname:String
+  lastname:String
+  password:String
+  phone:String
+  email:String
+  picture:String
+  cover_picture:String
+  job_title:String
+  about:String
+  role:String
+  token:String
+  company:String
+  address:[Address]
+  education:[Education]
+  certification:[Certification]
+  portfolio:[Portfolio]
+  experience:[Experience]
+}
+
+input AddressInput {
+  id:Int!
+  street:String
+  local_govt:String
+  state:String
+  country:String
+}
+
+input EducationInput {
+id:Int!
+institution:String
+course:String
+description:String
+startDate:Date
+endDate:Date
+}
+
+input CertificationInput {
+id:Int!
+title:String
+description:String
+issuedDate:Date
+}
+
+input PortfolioInput {
+id:Int!
+title:String
+description:String
+startDate:Date
+endDate:Date
+}
+
+input ExperienceInput {
+id:Int
+startDate:Date
+endDate:Date
+employer:String
+description:String
+}
+
+input UserInput {
+  id: Int
+  firstname:String
+  lastname:String
+  password:String
+  phone:String
+  email:String
+  picture:String
+  cover_picture:String
+  job_title:String
+  about:String
+  role:String
+  token:String
+  company:String
+  address:[AddressInput]
+  education:[EducationInput]
+  certification:[CertificationInput]
+  portfolio:[PortfolioInput]
+  experience:[ExperienceInput]
+}
+
+input ServiceInput {
+  id:Int!
+  title: String
+  category:String
+  subcategory:String
+  picture:String
+  description:String
+  charge:String
+  delivery_period:String
+  search_tag:String
+  hourly_rate:String
+}
+
+
+type Section {
+   title:String
+   data:[Product]
+}
+
+type Student {
+   id:Int!
+   firstName:String
+   lastName:String
+   password:String
+   collegeId:String
+   fullName:String
+}
+
+type RandomDie {
+  numSides: Int!
+  rollOnce: Int!
+  roll(numRolls: Int!): [Int]
+}
+
+type FullName {
+  obj:String!
+  fullname:String
+}
+ 
+type Message {
+  id: Int!
+  name:String
+  email:String
+  subject:String
+  message:String
+  created_at:Date
+  content: String
+  author: String
+}
+
+type Rate {
+  currency:String
+  rate:String
+}
+
+type Product {
+  product_id:Int
+  product_name:String
+}
+
+type Query {
+
+  getOneUser(id:Int):User
+  getManyUsers:[User]
+
+  handleLogin(data:LoginInput):Boolean
+
+  getOneService(id:Int):Service
+  getManyServices:[Service]
+  getOneServicePlusAddon(id:Int):Service
+  getManyServicesPlusAddon:Service
+
+  testsubscription:String
+  
+  # This is only here to satisfy the requirement that at least one
+  # field be present within the 'Query' type.  This example does not
+  # demonstrate how to fetch uploads back.
+
+  otherFields: Boolean!
+  
+  # test the server
+  test:String
+  getDie(numSides: Int):RandomDie
+  getFull(obj:String):FullName
+  ip:String
+  productByCategory:[Section]
+
+}
+
+type Mutation {
+
+  handleRegisteration(data:RegisterInput):Boolean 
+
+  createOneUser(user:RegisterInput):User
+  createManyUsers:Int
+  updateOneUser(user:UserInput):User
+  deleteOneUser(id:Int):User
+
+  addService(service:ServiceInput):Service
+  updateService(service:ServiceInput):Service
+  deleteService(id:Int):Service
+
+  singleUpload(file: Upload!): File!
+
+  createPost(author: String, comment: String): Post
+  createSomething(id:Int):Result
+  createComment(id:Int,content:String):Comment
+}
+
+type Post {
+  author:String
+  comment:String
+}
+
+type Comment {
+  id:Int
+  content:String
+}
+
+type Result {
+    id: String
+}
+
+type Subscription {
+  postCreated: Post
+  somethingChanged(id:Int):Result
+  commentAdded:Comment
+}
+
+`;
+
+module.exports = typeDefs

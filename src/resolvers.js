@@ -5,10 +5,10 @@ const { PubSub, PubSubEngine, withFilter } = require('graphql-subscriptions');
 //  for development
 const pubsub = new PubSub();
 
-const authentication = require('./model/authentication');
-const users = require('./model/user');
-const services = require("./model/service");
-const files = require("./model/file");
+const authentication = require('../model/authentication');
+const users = require('../model/user');
+const services = require("../model/service");
+const files = require("../model/file");
 const db = require('./db');
 
 const prisma = new PrismaClient()
@@ -25,10 +25,10 @@ const resolvers = {
         testsubscription: () => {
             pubsub.publish('POST_CREATED', {
                 postCreated: {
-                  author: 'Ali Baba',
-                  comment: 'Open sesame'
+                    author: 'Ali Baba',
+                    comment: 'Open sesame'
                 }
-              });
+            });
         },
 
         /**
@@ -227,24 +227,32 @@ const resolvers = {
          */
         singleUpload: async (parent, { file }) => {
 
-            return await files.uploadOneFile(file)
+            return await files.uploadSingleFile(file)
+        },
+
+        fileUpload: async (parent, { file }) => {
+
+            return await files.uploadManyFiles(file)
         },
 
         createPost(parent, args, context) {
             pubsub.publish('POST_CREATED', { postCreated: args });
+
             return args;
             // return postController.createPost(args);
         },
         createComment(parent, args, context) {
             pubsub.publish('COMMENT_ADDED', { commentAdded: args });
+
             return args;
             // return postController.createPost(args);
         },
 
-        createSomething: (_, args)=>{
+        createSomething: (_, args) => {
             pubsub.publish(
                 SOMETHING_CHANGED_TOPIC, { somethingChanged: { id: "124" } }
             );
+
             return args;
         }
 
@@ -261,7 +269,8 @@ const resolvers = {
             subscribe: withFilter(
                 (_, args) => pubsub.asyncIterator(`${SOMETHING_CHANGED_TOPIC}_${args.id}`),
                 (payload, variables) => {
-                    return payload.somethingChanged.id === variables.id
+                    
+                    return payload.somethingChanged.id === variables.id;
                 }
             ),
         },

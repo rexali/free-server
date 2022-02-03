@@ -1,4 +1,4 @@
-const { httpServer } = require('./app');
+const { httpServer } = require('./src/app');
 
 const PORT = 4000;
 httpServer.then(server => server.listen(

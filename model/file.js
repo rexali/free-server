@@ -1,17 +1,40 @@
-module.exports={
-    uploadOneFile:async(file)=>{
+const fileRenamer = (filename) => {
+    const queHoraEs = Date.now();
+    const regex = /[\s_-]/gi;
+    const fileTemp = filename.replace(regex, ".");
+    let arrTemp = [fileTemp.split(".")];
+    return `${arrTemp[0].slice(0, arrTemp[0].length - 1).join("_")}${queHoraEs}.${arrTemp[0].pop()}`;
+};
+
+module.exports = {
+    uploadSingleFile: async (file) => {
         const { createReadStream, filename, mimetype, encoding } = await file;
-            // Invoking the `createReadStream` will return a Readable Stream.
-            // See https://nodejs.org/api/stream.html#stream_readable_streams
-            const { finished } = require('stream/promises');
+        // Invoking the `createReadStream` will return a Readable Stream.
+        // See https://nodejs.org/api/stream.html#stream_readable_streams
+        const { finished } = require('stream/promises');
+        const stream = createReadStream();
+        // This is purely for demonstration purposes and will overwrite the
+        // local-file-output.txt in the current working directory on EACH upload.
+        const out = require('fs').createWriteStream('local-file-output.txt');
+        stream.pipe(out);
+        await finished(out);
 
+        return { filename, mimetype, encoding };
+    },
+
+    uploadManyFiles: async (file) => {
+        let url = [];
+        for (let i = 0; i < file.length; i++) {
+            const { createReadStream, filename, mimetype } = await file[i];
             const stream = createReadStream();
-            // This is purely for demonstration purposes and will overwrite the
-            // local-file-output.txt in the current working directory on EACH upload.
-            const out = require('fs').createWriteStream('local-file-output.txt');
-            stream.pipe(out);
-            await finished(out);
+            const assetUniqName = fileRenamer(filename);
+            const pathName = path.join(__dirname, `./upload/${assetUniqName}`);
+            await stream.pipe(fs.createWriteStream(pathName));
+            const urlForArray = `http://localhost:4000/${assetUniqName}`;
+            url.push({ url: urlForArray });
+        }
 
-            return { filename, mimetype, encoding };
+        return url;
     }
+
 }

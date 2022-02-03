@@ -15,6 +15,10 @@ type File {
     encoding: String!
 }
 
+type Files {
+  url:String
+}
+
 type Freelancer {
   id:String!
   firstname:String
@@ -383,7 +387,8 @@ type Mutation {
   updateService(service:ServiceInput):Service
   deleteService(id:Int):Service
 
-  singleUpload(file: Upload!): File!
+  singleUpload(file:Upload!):File!
+  fileUpload(file:[Upload]!):[Files]!
 
   createPost(author: String, comment: String): Post
   createSomething(id:Int):Result
