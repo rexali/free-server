@@ -1,6 +1,6 @@
 module.exports = {
 
-    authorize: async (req) => {
+    authorizeUser: async (req) => {
         // get the token token from the headers
         const token = req.headers.authorization || '';
         // we could also check token roles/permissions here

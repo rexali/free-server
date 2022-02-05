@@ -1,3 +1,6 @@
+const path = require('path');
+const fs = require('fs');
+
 const fileRenamer = (filename) => {
     const queHoraEs = Date.now();
     const regex = /[\s_-]/gi;
@@ -13,9 +16,7 @@ module.exports = {
         // See https://nodejs.org/api/stream.html#stream_readable_streams
         const { finished } = require('stream/promises');
         const stream = createReadStream();
-        // This is purely for demonstration purposes and will overwrite the
-        // local-file-output.txt in the current working directory on EACH upload.
-        const out = require('fs').createWriteStream('local-file-output.txt');
+        const out = require('fs').createWriteStream('upload/'+filename);
         stream.pipe(out);
         await finished(out);
 
@@ -28,7 +29,7 @@ module.exports = {
             const { createReadStream, filename, mimetype } = await file[i];
             const stream = createReadStream();
             const assetUniqName = fileRenamer(filename);
-            const pathName = path.join(__dirname, `./upload/${assetUniqName}`);
+            const pathName = path.join(__dirname,  `../upload/${assetUniqName}`);
             await stream.pipe(fs.createWriteStream(pathName));
             const urlForArray = `http://localhost:4000/${assetUniqName}`;
             url.push({ url: urlForArray });

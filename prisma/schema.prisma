@@ -57,7 +57,7 @@ model Education {
   institution String
   course      String
   description String
-  started_at  DateTime
+  started_at  DateTime 
   ended_at    DateTime
   user        User?    @relation(fields: [user_id], references: [id])
   user_id     Int?

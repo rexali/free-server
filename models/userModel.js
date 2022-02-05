@@ -5,6 +5,42 @@ const prisma = new PrismaClient()
 module.exports = {
 
     /**
+     * Get a user detail that match a given email
+     * 
+     * @param {object} parent 
+     * @param {object} data user login detail from client
+     * @returns userDetail of user object
+     */
+    getUserLoginDetail: async (parent, { data }) => {
+        try {
+            const userLoginDetail = await prisma.user.findUnique({
+                where: {
+                    email: data.email,
+                },
+                select: {
+                    id: true,
+                    role: true,
+                    password: true,
+                    email: true
+                },
+    
+            });
+    
+            return userLoginDetail;
+
+        } catch (error) {
+            console.warn(error);
+        }finally{
+            async () => {
+                await prisma.$disconnect();
+            } 
+        }
+
+        return;
+    },
+       
+
+    /**
      * Read a user datail from the user table
      * 
      * @param {Int} id an id of a given user
@@ -22,9 +58,12 @@ module.exports = {
         } catch (error) {
             console.log(error)
         } finally {
-            prisma.$disconnect()
+            async () => {
+                await prisma.$disconnect();
+            }
         }
-      return;
+
+        return;
     },
 
     /**
@@ -33,7 +72,6 @@ module.exports = {
      * @returns array object of type User
      */
     getManyUsers: async () => {
-
         try {
             const result = await prisma.user.findMany();
 
@@ -42,7 +80,9 @@ module.exports = {
         } catch (error) {
             console.log(error)
         } finally {
-            prisma.$disconnect()
+            async () => {
+                await prisma.$disconnect();
+            }
         }
     },
 
@@ -63,7 +103,9 @@ module.exports = {
         } catch (error) {
             console.log(error)
         } finally {
-            prisma.$disconnect()
+            async () => {
+                await prisma.$disconnect();
+            }
         }
 
         return;
@@ -83,10 +125,12 @@ module.exports = {
 
             return result;
         } catch (error) {
-            prisma.$disconnect()
+           console.warn(error);
 
         } finally {
-            prisma.$disconnect()
+            async () => {
+                await prisma.$disconnect();
+            }
 
         }
 
@@ -112,7 +156,9 @@ module.exports = {
         } catch (error) {
             console.log(error);
         } finally {
-            prisma.$disconnect()
+            async () => {
+                await prisma.$disconnect();
+            }
 
         }
 
@@ -138,10 +184,27 @@ module.exports = {
         } catch (error) {
             console.log(error);
         } finally {
-            prisma.$disconnect();
+            async () => {
+                await prisma.$disconnect();
+            }
         }
 
         return;
-    }
+    },
+
+
+    populateServices2: async (data) => {
+        await prisma.user.create({
+            data: {
+                services:{
+                    create:{
+                        title:"Mr",
+                    }
+                }
+                
+            },
+        })
+
+    },
 
 }

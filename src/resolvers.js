@@ -4,14 +4,17 @@ const { PubSub, PubSubEngine, withFilter } = require('graphql-subscriptions');
 
 //  for development
 const pubsub = new PubSub();
+// for production
+class MyPubSub extends PubSubEngine { }
+const mypubsub = new MyPubSub();
 
-const authentication = require('../model/authentication');
-const users = require('../model/user');
-const services = require("../model/service");
-const files = require("../model/file");
-const db = require('./db');
+const authentication = require('../models/authentication');
+const userModel = require('../models/userModel');
+const serviceModel = require("../models/serviceModel");
+const fileController = require("../controllers/fileController");
 
 const prisma = new PrismaClient()
+
 const SOMETHING_CHANGED_TOPIC = 'something_changed';
 
 const resolvers = {
@@ -22,23 +25,14 @@ const resolvers = {
         // test server
         test: () => 'Test Success, GraphQL server is up & running !!',
 
-        testsubscription: () => {
-            pubsub.publish('POST_CREATED', {
-                postCreated: {
-                    author: 'Ali Baba',
-                    comment: 'Open sesame'
-                }
-            });
-        },
-
         /**
          * Handle authentication of a user 
          *
-         * @param {object} _ represent arguement
-         * @param {object} data object
+         * @param {object} parent
+         * @param {object} data object of login detail
          * @returns a boolean value
          */
-        handleLogin: async (_, { data: { email, password, role } }) => {
+        handleLogin: async (parent, { data: { email, password, role } }) => {
 
             return await authentication.authenticate(email, password, role)
         },
@@ -52,20 +46,20 @@ const resolvers = {
         getOneUser: async (_, { id }) => {
             try {
 
-                return await users.getOneUser(id);
+                return await userModel.getOneUser(id);
             } catch (error) {
                 console.log(error)
             }
         },
 
         /**
-         * Read all users from the user table 
+         * Read all userModel from the user table 
          * 
          * @returns array of user objects
          */
         getManyUsers: async () => {
 
-            return users.getManyUsers();
+            return userModel.getManyUsers();
         },
 
         /**
@@ -75,7 +69,7 @@ const resolvers = {
          */
         getManyServices: async () => {
 
-            return await services.getManyServices();
+            return await serviceModel.getManyServices();
         },
 
         /**
@@ -87,7 +81,7 @@ const resolvers = {
          */
         getOneService: async (parent, { id }) => {
 
-            return await services.getOneService(id);
+            return await serviceModel.getOneService(id);
         },
 
         /**
@@ -99,17 +93,17 @@ const resolvers = {
          */
         getOneServicePlusAddon: async (_, { id }) => {
 
-            return services.getOneServiceAndAddons(id);
+            return serviceModel.getOneServiceAndAddons(id);
         },
 
         /**
-         * Get all services with respected add-on services
+         * Get all serviceModel with respected add-on services
          * 
          * @returns array of object of service
          */
         getManyServicesPlusAddon: async () => {
 
-            return await services.getAllServicesAndAddons();
+            return await serviceModel.getAllServicesAndAddons();
         },
 
     },
@@ -146,17 +140,18 @@ const resolvers = {
          */
         createOneUser: async (parent, { user }) => {
 
-            return await users.createOneUser(user);
+            return await userModel.createOneUser(user);
         },
 
         /**
-         * Insert many users to user table (populate user table)
+         * Insert many userModel to user table (populate user table)
          * 
          * @returns  an integer number of entries
          */
         createManyUsers: async () => {
+            let {MOCK_DATA} = await import('../models/dbase');
             const result = await prisma.user.createMany({
-                data: (await import('./data/mock-data')).MOCK_DATA,
+                data: MOCK_DATA
                 // data:require('./data/mock-data').MOCK_DATA
             })
 
@@ -171,7 +166,7 @@ const resolvers = {
          */
         updateOneUser: async (parent, { user }) => {
 
-            return await users.updateOneUser(user)
+            return await userModel.updateOneUser(user)
         },
 
         /**
@@ -182,7 +177,7 @@ const resolvers = {
          */
         deleteOneUser: async (parent, { id }) => {
 
-            return await users.deleteOneUser(id);
+            return await userModel.deleteOneUser(id);
         },
 
         /**
@@ -193,18 +188,18 @@ const resolvers = {
          */
         deleteService: async (_, { id }) => {
 
-            return await services.deleteOneService(id);
+            return await serviceModel.deleteOneService(id);
         },
 
         /**
-         * Insert a serviceinto the user table
+         * Insert a service into the user table
          * 
          * @param {object} service an object of a service
          * @returns an object of a service
          */
         addService: async (_, { service }) => {
 
-            return await services.createOneService(service);
+            return await serviceModel.createOneService(service);
         },
 
         /**
@@ -215,7 +210,7 @@ const resolvers = {
         */
         updateService: async (_, { service }) => {
 
-            return await services.updateOneService(service)
+            return await serviceModel.updateOneService(service)
         },
 
         /**
@@ -227,12 +222,12 @@ const resolvers = {
          */
         singleUpload: async (parent, { file }) => {
 
-            return await files.uploadSingleFile(file)
+            return await fileController.uploadSingleFile(file)
         },
 
         fileUpload: async (parent, { file }) => {
 
-            return await files.uploadManyFiles(file)
+            return await fileController.uploadManyFiles(file)
         },
 
         createPost(parent, args, context) {
@@ -241,6 +236,7 @@ const resolvers = {
             return args;
             // return postController.createPost(args);
         },
+        
         createComment(parent, args, context) {
             pubsub.publish('COMMENT_ADDED', { commentAdded: args });
 
@@ -250,7 +246,7 @@ const resolvers = {
 
         createSomething: (_, args) => {
             pubsub.publish(
-                SOMETHING_CHANGED_TOPIC, { somethingChanged: { id: "124" } }
+                SOMETHING_CHANGED_TOPIC, { somethingChanged: { id: 3 } }
             );
 
             return args;
@@ -263,13 +259,16 @@ const resolvers = {
         postCreated: {
             // for development
             subscribe: () => pubsub.asyncIterator(['POST_CREATED']),
+
+            // for production
+            // subscribe: () => mypubsub.asyncIterator(['POST_CREATED']),
         },
 
         somethingChanged: {
             subscribe: withFilter(
                 (_, args) => pubsub.asyncIterator(`${SOMETHING_CHANGED_TOPIC}_${args.id}`),
                 (payload, variables) => {
-                    
+
                     return payload.somethingChanged.id === variables.id;
                 }
             ),
@@ -281,7 +280,7 @@ const resolvers = {
                 (payload, variables) => {
                     // Only push an update if the comment is on
                     // the correct repository for this operation
-                    return (payload.commentAdded.id !== variables.id);
+                    return (payload.commentAdded.id === variables.id);
                 },
             ),
         },

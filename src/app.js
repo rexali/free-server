@@ -81,7 +81,7 @@ var httpServer = (async function () {
   app.use(graphqlUploadExpress());
   // path
   app.use('/', (req, res, next) => { 
-    console.log("I am working");
+    console.log("I am working "+req.path);
     next(); 
   });
   // use the logging handler

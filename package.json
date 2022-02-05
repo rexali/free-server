@@ -26,6 +26,8 @@
     "mysql": "^2.18.1",
     "notarealdb": "^0.2.2",
     "pg": "^8.7.1",
+    "sqlite": "^4.0.23",
+    "sqlite3": "^5.0.2",
     "subscriptions-transport-ws": "^0.11.0"
   },
   "devDependencies": {

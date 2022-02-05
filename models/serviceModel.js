@@ -61,6 +61,13 @@ module.exports = {
         return mock_data.count;
     },
 
+
+    populateServices:async(service)=>{
+       const services_data = await prisma.service.createMany({
+           data:service
+       })
+    },
+
     /**
      * update a service in the service table
      * 
