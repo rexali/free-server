@@ -6,7 +6,7 @@ const knex = require("knex");
 const mysql = require("./dbHelpers");
 const store = new DataStore('../data');
 
-async function openDb() {
+async function sqliteDb() {
   return open({
     filename: '/tmp/database.db',
     driver: sqlite3.Database
@@ -180,10 +180,6 @@ const MOCK_DATA_SERVICE = [
   },
 ]
 
-module.exports = {
-  MOCK_DATA
-}
-
 
 module.exports = {
   store,
@@ -194,7 +190,7 @@ module.exports = {
   offers: store.collection('offers'),
   users: store.collection('users'),
   mysql,
-  openDb,
+  sqliteDb,
   MOCK_DATA,
   MOCK_DATA_SERVICE,
 };

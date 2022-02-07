@@ -5,7 +5,7 @@ const prisma = new PrismaClient()
 module.exports = {
 
     /**
-     * authenticate user before authorization
+     * Authenticate user before authorization
      * 
      * @param {String} email 
      * @param {String} password 
@@ -13,13 +13,13 @@ module.exports = {
      * @returns boolean
      */
     authenticate: async (email, password, role) => {
-        const user = await prisma.user.findUnique({
+        const result = await prisma.user.findUnique({
             where: {
                 email: email,
             }
         })
 
-        if (user.password===password && user.role===role) {
+        if (result.password===password && result.role===role) {
             return true
         }
 

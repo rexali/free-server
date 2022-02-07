@@ -23,22 +23,22 @@ module.exports = {
                     password: true,
                     email: true
                 },
-    
+
             });
-    
+
             return userLoginDetail;
 
         } catch (error) {
             console.warn(error);
-        }finally{
+        } finally {
             async () => {
                 await prisma.$disconnect();
-            } 
+            }
         }
 
         return;
     },
-       
+
 
     /**
      * Read a user datail from the user table
@@ -125,7 +125,7 @@ module.exports = {
 
             return result;
         } catch (error) {
-           console.warn(error);
+            console.warn(error);
 
         } finally {
             async () => {
@@ -193,17 +193,48 @@ module.exports = {
     },
 
 
-    populateServices2: async (data) => {
-        await prisma.user.create({
-            data: {
-                services:{
-                    create:{
-                        title:"Mr",
+    populateService: async function (data) {
+        try {
+            const result = await prisma.service.create({
+                data: {
+                    title: data.title,
+                    category: data.category,
+                    subcategory: data.subcategory,
+                    charge: data.charge,
+                    picture: data.picture,
+                    description: data.description,
+                    delivery_period: data.delivery_period,
+                    hourly_rate: data.hourly_rate,
+                    search_tag: data.search_tag,
+                    user: {
+                        connectOrCreate: {
+                            where: {
+                                email: data.email,
+                            },
+                            create: {
+                                email: data.email,// 'alybaba2022@gmail.com',
+                                role: data.role,// "admin",
+                                password: data.password //123456789
+                            }
+                        }
                     }
+                },
+                include: {
+                    user: true
                 }
-                
-            },
-        })
+            });
+
+            console.dir(result)
+            return result;
+
+        } catch (error) {
+            console.log(error);
+
+        } finally {
+            async () => {
+                await prisma.$disconnect();
+            }
+        }
 
     },
 

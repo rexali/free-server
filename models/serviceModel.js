@@ -11,13 +11,13 @@ module.exports = {
      * @returns  object of type service
      */
     getOneService: async (id) => {
-        const service = await prisma.service.findUnique({
+        const result = await prisma.service.findUnique({
             where: {
                 id: id,
             }
         })
 
-        return service;
+        return result;
     },
 
 
@@ -27,9 +27,9 @@ module.exports = {
      * @returns array object of type service
      */
     getManyServices: async () => {
-        const services = await prisma.service.findMany();
+        const result = await prisma.service.findMany();
 
-        return services;
+        return result;
     },
 
 
@@ -40,11 +40,11 @@ module.exports = {
      * @returns service
      */
     createOneService: async (service) => {
-        const newservice = await prisma.service.create({
+        const result = await prisma.service.create({
             data: service
         })
 
-        return newservice;
+        return result;
     },
 
     /**
@@ -54,19 +54,13 @@ module.exports = {
      * @returns number of type Int
      */
     createManyServices: async (services) => {
-        const mock_data = await prisma.service.createMany({
+        const result = await prisma.service.createMany({
             data: services,
         })
 
-        return mock_data.count;
+        return result.count;
     },
 
-
-    populateServices:async(service)=>{
-       const services_data = await prisma.service.createMany({
-           data:service
-       })
-    },
 
     /**
      * update a service in the service table
@@ -76,6 +70,9 @@ module.exports = {
      */
     updateOneService: async (service) => {
         const result = await prisma.service.update({
+            where: {
+                id: service.id
+            },
             data: service,
         });
 
@@ -105,7 +102,7 @@ module.exports = {
      * @returns an object of a service 
      */
     getOneServiceAndAddons: async (id) => {
-        const service = await prisma.service.findUnique({
+        const result = await prisma.service.findUnique({
             where: {
                 id: id,
             },
@@ -114,7 +111,7 @@ module.exports = {
             }
         })
 
-        return service;
+        return result;
     },
 
     /**
@@ -138,7 +135,7 @@ module.exports = {
      * @returns an array of strings containing categories
      */
     getServiceCategories: async () => {
-        const serviceCategories = await prisma.service.findMany({
+        const result = await prisma.service.findMany({
             select: {
                 category: true
             },
@@ -148,7 +145,7 @@ module.exports = {
             }
 
         })
-        return serviceCategories;
+        return result;
     },
 
     /**
@@ -157,7 +154,7 @@ module.exports = {
      * @returns an array of strings containing sub-categories
      */
     getServiceSubcategories: async () => {
-        const serviceCategories = await prisma.service.findMany({
+        const result = await prisma.service.findMany({
             select: {
                 subcategory: true,
             },
@@ -167,7 +164,7 @@ module.exports = {
             },
         })
 
-        return serviceSubcategories;
+        return result;
     },
 
 
@@ -178,14 +175,14 @@ module.exports = {
      * @returns an array of objects of service
      */
     search_a_given_term: async (term) => {
-        const searchResult = await prisma.service.findMany({
+        const result = await prisma.service.findMany({
             where: {
                 title: {
                     contains: term
                 }
             }
         })
-        return searchResult
+        return result
     },
 
     /**
@@ -239,9 +236,9 @@ module.exports = {
             }
         }
 
-        const filterResult = await prisma.service.findMany(data);
+        const result = await prisma.service.findMany(data);
 
-        return filterResult;
+        return result;
     },
 
     /**
@@ -250,11 +247,11 @@ module.exports = {
      * @returns an array of objects of service
      */
     getFirstPageOfServices: async () => {
-        const services = await prisma.service.findMany({
+        const result = await prisma.service.findMany({
             take: 6,
         })
 
-        return services;
+        return result;
     },
 
     /**
@@ -265,7 +262,7 @@ module.exports = {
     getNextPageOfServices: async (cursorPos) => {
         // const lastServiceInResults = await this.getFirstPageOfServices()[5];
         // const cursorPostion = lastServiceInResults.id;
-        const services = await prisma.service.findMany({
+        const result = await prisma.service.findMany({
             take: 6,
             skip: 1, // skip the cursor
             cursor: {
@@ -273,12 +270,12 @@ module.exports = {
             }
         })
 
-        return services;
+        return result;
     },
 
-    getPreviousPageOfServices: async(cursorPos) =>{
+    getPreviousPageOfServices: async (cursorPos) => {
 
-        const services = await prisma.service.findMany({
+        const result = await prisma.service.findMany({
             take: -6,
             skip: 1,
             cursor: {
@@ -286,7 +283,7 @@ module.exports = {
             }
         })
 
-        return services;
-}
+        return result;
+    }
 
 }

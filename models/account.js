@@ -56,7 +56,7 @@ module.exports = {
     createAccount: async (account) => {
         const result = await client.account.create({
             data: account
-        })
+        });
 
         return result
     }

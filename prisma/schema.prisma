@@ -57,7 +57,7 @@ model Education {
   institution String
   course      String
   description String
-  started_at  DateTime 
+  started_at  DateTime
   ended_at    DateTime
   user        User?    @relation(fields: [user_id], references: [id])
   user_id     Int?
@@ -91,9 +91,9 @@ model Service {
 }
 
 model Addon {
-  id         Int      @id @default(autoincrement())
-  title      String
-  charge     Int
+  id        Int      @id @default(autoincrement())
+  title     String
+  charge    Int
   service    Service? @relation(fields: [service_id], references: [id])
   service_id Int?
 }

@@ -9,9 +9,9 @@ module.exports={
      * @returns array of notifications
      */
     readNotifications: async()=>{
-        const messages = await client.notification.findMany();
+        const result = await client.notification.findMany();
 
-        return messages;
+        return result;
     },
 
     /**

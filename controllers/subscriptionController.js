@@ -19,4 +19,4 @@ function commonMessageHandler ({attributes = {}, data = ''}) {
 
   const topic2subName = topicName => `${topicName}-${serverName}-subscription`;
 
-  const pubSub = new GooglePubSub(options, topic2SubName, commonMessageHandler)
+  const pubSub = new GooglePubSub(options, topic2subName, commonMessageHandler)

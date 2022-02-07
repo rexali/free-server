@@ -12,6 +12,9 @@ const authentication = require('../models/authentication');
 const userModel = require('../models/userModel');
 const serviceModel = require("../models/serviceModel");
 const fileController = require("../controllers/fileController");
+const mailController = require("../controllers/mailController");
+const htmlEscape = require('html-escape');
+const addonModel = require('../models/addonModel');
 
 const prisma = new PrismaClient()
 
@@ -110,6 +113,11 @@ const resolvers = {
 
     Mutation: {
 
+        populateAservice: async (parent, { service }) => {
+
+            return await userModel.populateService(service);
+        },
+
         /**
          * Register a user
          * 
@@ -149,7 +157,7 @@ const resolvers = {
          * @returns  an integer number of entries
          */
         createManyUsers: async () => {
-            let {MOCK_DATA} = await import('../models/dbase');
+            let { MOCK_DATA } = await import('../models/dbase');
             const result = await prisma.user.createMany({
                 data: MOCK_DATA
                 // data:require('./data/mock-data').MOCK_DATA
@@ -214,6 +222,18 @@ const resolvers = {
         },
 
         /**
+         * Insert an addon into the addon table
+         * 
+         * @param {object} addon an object of a service
+         * @returns an object of a service
+         */
+         addon: async (_, { addon }) => {
+
+            return await addonModel.populateAddon(addon);
+        },
+
+
+        /**
          * upload a single file 
          *
          * @param {object} parent 
@@ -225,9 +245,45 @@ const resolvers = {
             return await fileController.uploadSingleFile(file)
         },
 
+        /**
+         * upload a single file 
+         *
+         * @param {object} parent 
+         * @param {object} file 
+         * @returns an object of file
+         */
         fileUpload: async (parent, { file }) => {
 
             return await fileController.uploadManyFiles(file)
+        },
+
+        sendMail: async (parent, args) => {
+
+            let {
+                email,
+                subject,
+                format,
+                html,
+                text,
+                name
+            } = args.message;
+
+            const emaile = htmlEscape(email);
+            const subjecte = htmlEscape(subject);
+            const formate = htmlEscape(format);
+            const htmle = htmlEscape(html);
+            const texte = htmlEscape(text);
+            const namee = htmlEscape(name);
+
+
+            return await mailController.sendSingleMail(
+                emaile.toString,
+                subjecte.toString,
+                formate.toString,
+                htmle.toString,
+                texte.toString,
+                namee.toString
+            )
         },
 
         createPost(parent, args, context) {
@@ -236,7 +292,7 @@ const resolvers = {
             return args;
             // return postController.createPost(args);
         },
-        
+
         createComment(parent, args, context) {
             pubsub.publish('COMMENT_ADDED', { commentAdded: args });
 

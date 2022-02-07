@@ -203,6 +203,13 @@ password:String
 role:String
 }
 
+input AddonInput {
+  title:String
+  charge:Int
+  service_id:Int
+
+}
+
 type User {
   id: Int!
   firstname:String
@@ -296,6 +303,17 @@ input ServiceInput {
   delivery_period:String
   search_tag:String
   hourly_rate:String
+  email:String
+  role:String
+  password:String
+},
+
+input MailInput {
+  email:String
+  subject:String,
+  format:String,
+  text:String,
+  name:String
 }
 
 
@@ -386,9 +404,14 @@ type Mutation {
   addService(service:ServiceInput):Service
   updateService(service:ServiceInput):Service
   deleteService(id:Int):Service
+  populateAservice(service:ServiceInput):Service
+
+  addon(addon:AddonInput):Addon
 
   singleUpload(file:Upload!):File!
   fileUpload(file:[Upload]!):[Files]!
+
+  sendMail(message:MailInput):Boolean
 
   createPost(author: String, comment: String): Post
   createSomething(id:Int):Result
@@ -408,6 +431,8 @@ type Comment {
 type Result {
     id: String
 }
+
+# subcription definition below
 
 type Subscription {
   postCreated: Post

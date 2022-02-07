@@ -5,70 +5,73 @@ const prisma = new PrismaClient()
 module.exports = {
 
     /**
-     * read a cart datail from the cart table
+     * Read a cart datail from the cart table
      * 
      * @param {Int} id 
      * @returns  object of type cart
      */
     getOneCart: async (id) => {
-        const cart = await prisma.cart.findUnique({
+        const result = await prisma.cart.findUnique({
             where: {
                 id: id,
             }
         })
 
-        return cart;
+        return result;
     },
 
 
     /**
-     * read all carts from the cart table 
+     * Read all carts from the cart table 
      * 
      * @returns array object of type cart
      */
     getManyCarts: async () => {
-        const carts = await prisma.cart.findMany();
+        const result = await prisma.cart.findMany();
 
-        return carts;
+        return result;
     },
 
 
     /**
-     * insert a cart into the cart table
+     * Insert a cart into the cart table
      * 
-     * @param {object} cart object of type cart
+     * @param {object} cartData object of type cart
      * @returns cart
      */
-    createOneCart: async (cart) => {
-        const newcart = await prisma.cart.create({
-            data: cart
+    createOneCart: async (cartData) => {
+        const result = await prisma.cart.create({
+            data: cartData
         })
 
-        return newcart;
+        return result;
     },
 
     /**
-     * insert many carts to cart table
+     * Insert many carts to cart table
      * 
      * @param {object[]} carts array of object of type cart
-     * @returns number of type Int
+     * @returns a number of type Int
      */
-    createManyCarts: async (carts) => {
-        const mock_data = await prisma.cart.createMany({
-            data: carts,
+    createManyCarts: async (cartData) => {
+        const result = await prisma.cart.createMany({
+            data: cartData,
         })
 
-        return mock_data.count;
+        return result.count;
     },
 
     /**
-     * update a cart in the cart table
+     * Update a cart in the cart table
      * 
      * @param {object} cart object of type cart
      * @returns object of type cart
      */
     updateOneCart: async (cart) => {
         const result = await prisma.cart.update({
+            where:{
+                id:cart.id,
+            },
             data: cart,
         });
 
@@ -76,7 +79,7 @@ module.exports = {
     },
 
     /**
-     * delete a cart from cart table 
+     * Delete a cart from cart table 
      * 
      * @param {Int} id id of type Int
      * @returns object of type cart

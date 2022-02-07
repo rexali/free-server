@@ -9,9 +9,9 @@ module.exports={
      * @returns array of orders
      */
     readOrders: async()=>{
-        const messages = await client.order.findMany();
+        const result = await client.order.findMany();
 
-        return messages;
+        return result;
     },
 
     /**

@@ -11,13 +11,13 @@ module.exports = {
      * @returns  object of type favourite
      */
     getOneFavourite: async (id) => {
-        const favourite = await prisma.favourite.findUnique({
+        const result = await prisma.favourite.findUnique({
             where: {
                 id: id,
             }
         })
 
-        return favourite;
+        return result;
     },
 
 
@@ -27,9 +27,9 @@ module.exports = {
      * @returns array object of type favourite
      */
     getManyFavourites: async () => {
-        const favourites = await prisma.favourite.findMany();
+        const result = await prisma.favourite.findMany();
 
-        return favourites;
+        return result;
     },
 
 
@@ -40,11 +40,11 @@ module.exports = {
      * @returns favourite
      */
     createOneFavourite: async (favourite) => {
-        const newfavourite = await prisma.favourite.create({
+        const result = await prisma.favourite.create({
             data: favourite
         })
 
-        return newfavourite;
+        return result;
     },
 
     /**
@@ -53,12 +53,12 @@ module.exports = {
      * @param {object[]} favourites array of object of type favourite
      * @returns number of type Int
      */
-    createManyFavourites: async (favourites) => {
-        const mock_data = await prisma.favourite.createMany({
-            data: favourites,
+    createManyFavourites: async (favouriteData) => {
+        const result = await prisma.favourite.createMany({
+            data: favouriteData,
         })
 
-        return mock_data.count;
+        return result.count;
     },
 
     /**
