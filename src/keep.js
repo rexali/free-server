@@ -70,3 +70,45 @@ var resolvers = {
         return sectiondata;
     }
 }
+
+`# schema for the above resolver
+
+type Section {
+    title:String
+    data:[Product]
+ }
+ 
+ type Student {
+    id:Int!
+    firstName:String
+    lastName:String
+    password:String
+    collegeId:String
+    fullName:String
+ }
+ 
+ type RandomDie {
+   numSides: Int!
+   rollOnce: Int!
+   roll(numRolls: Int!): [Int]
+ }
+ 
+ type FullName {
+   obj:String!
+   fullname:String
+ }
+ 
+ type Rate {
+   currency:String
+   rate:String
+ }
+ 
+ type Product {
+   product_id:Int
+   product_name:String
+ }
+
+getDie(numSides: Int):RandomDie
+getFull(obj:String):FullName
+ip:String
+productByCategory:[Section]`

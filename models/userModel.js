@@ -11,11 +11,11 @@ module.exports = {
      * @param {object} data user login detail from client
      * @returns userDetail of user object
      */
-    getUserLoginDetail: async (parent, { data }) => {
+    getUserLoginDetail: async (email) => {
         try {
-            const userLoginDetail = await prisma.user.findUnique({
+            const result = await prisma.user.findUnique({
                 where: {
-                    email: data.email,
+                    email: email,
                 },
                 select: {
                     id: true,
@@ -26,7 +26,7 @@ module.exports = {
 
             });
 
-            return userLoginDetail;
+            return result;
 
         } catch (error) {
             console.warn(error);

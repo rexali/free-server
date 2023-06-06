@@ -27,8 +27,17 @@ module.exports = {
      * @returns array object of type service
      */
     getManyServices: async () => {
-        const result = await prisma.service.findMany();
-
+        const result = await prisma.service.findMany({
+            include:{
+                addons:true,
+                user: {
+                    include:{
+                        addresses: true,
+                    }
+                }
+            }
+        });
+        
         return result;
     },
 
@@ -107,22 +116,23 @@ module.exports = {
                 id: id,
             },
             include: {
-                addons: true
+                addons:true
             }
         })
 
         return result;
     },
 
+
     /**
      * Get all services and their added services
-     * 
+     *
      * @returns an object of service
      */
     getAllServicesAndAddons: async () => {
         const service = await prisma.service.findMany({
             include: {
-                addons: true
+                addons:true,
             }
         })
 

@@ -1,5 +1,7 @@
 const nodemailer = require("nodemailer");
 
+const { htmlEscape } = require('../utils/escapeHelper')
+
 /**
  * send email to users
  * @param {string} username username of the mail server
@@ -16,6 +18,12 @@ const nodemailer = require("nodemailer");
  */
 function sendSingleMail(email, subject, format = 'html', messageHtml, messageText, senderName) {
 
+    const emaile = htmlEscape(email);
+    const subjecte = htmlEscape(subject);
+    const htmle = htmlEscape(messageHtml);
+    const texte = htmlEscape(messageText);
+    const namee = htmlEscape(senderName);
+
     var transporter = nodemailer.createTransport({
         host: 'mail.mujaware.com',//gmail
         port: 465,
@@ -27,10 +35,10 @@ function sendSingleMail(email, subject, format = 'html', messageHtml, messageTex
     });
 
     var mailOptions = {
-        from: `${senderName ? senderName : "Kulwek"} <${process.env.USER}>`,
-        to: email,
-        subject: subject,
-        [format]: messageHtml ? messageHtml : messageText // or html:<html>It is easy</html>
+        from: `${namee ? namee : "Kulwek"} <${process.env.USER}>`,
+        to: emaile,
+        subject: subjecte,
+        [format]: htmle ? htmle : texte // or html:<html>It is easy</html>
     };
 
     let promise = new Promise((resolve, reject) => {
@@ -64,6 +72,7 @@ function sendSingleMail(email, subject, format = 'html', messageHtml, messageTex
  * 
  * @returns result, a json string
  */
+
 function sendMultipleMail(
     email,
     subject,
@@ -74,6 +83,12 @@ function sendMultipleMail(
     ccList,
     bccList
 ) {
+
+    const emaile = htmlEscape(email);
+    const subjecte = htmlEscape(subject);
+    const htmle = htmlEscape(messageHtml);
+    const texte = htmlEscape(messageText);
+    const namee = htmlEscape(senderName);
 
     var transporter = nodemailer.createTransport({
         host: 'mail.mujaware.com',//gmail
@@ -86,12 +101,12 @@ function sendMultipleMail(
     });
 
     var mailOptions = {
-        from: `${senderName ? senderName : "Kulwek"} <${process.env.USER}>`,
+        from: `${namee ? namee : "Kulwek"} <${process.env.USER}>`,
         cc: [ccList ? ccList : ''],
         bcc: [bccList ? bccList : ''],
-        to: email,
-        subject: subject,
-        [format]:  messageHtml ? messageHtml : messageText // or html:<html>It is easy</html>
+        to: emaile,
+        subject: subjecte,
+        [format]: htmle ? htmle : texte // or html:<html>It is easy</html>
     };
 
     let promise = new Promise((resolve, reject) => {

@@ -16,13 +16,15 @@ const { SubscriptionServer } = require('subscriptions-transport-ws');
 const { makeExecutableSchema } = require('@graphql-tools/schema');
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient()
-// type definition, Altrnatively, const typeDefs = require("./schema");
-const typeDefs = fs.readFileSync('./src/schema.graphql', { encoding: 'utf-8' });
+ 
+const typeDefs = require("./schemas/schema");
+// type definition, Altrnatively,
+// const typeDefs = fs.readFileSync('./src/schema.graphql', { encoding: 'utf-8' });
 // resolvers for the schema query, mutation, subscription
-const resolvers = require('./resolvers');
+const resolvers = require('./resolvers/resolver');
 
 const loggingHandler = (req, res, next) => {
-  console.log("IP Address: " + req.ip);
+  console.log(`Path:${req.path}, IP: "${req.ip}`);
   next()
 }
 
@@ -49,14 +51,13 @@ var httpServer = (async function () {
     apollo: {
       key: process.env.APOLLO_KEY,
     },
-    context: ({ req }) => {
+    context: ({ req,res }) => {
       // get the user token from the headers
       const token = req.headers.authorization || '';
-      // we could also check user roles/permissions here
-      // if (!token) throw new Error('you must be logged in');
-      // add the token to the context
+      
       return {
         req,
+        res,
         token
       };
     },

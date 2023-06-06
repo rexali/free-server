@@ -1,6 +1,10 @@
-const { ApolloServer, gql } = require('apollo-server');
+const { gql } = require('apollo-server');
+const { mutationSchema } = require('./mutationSchema');
+const { querySchema } = require('./querySchema');
+const { subscriptionSchema } = require('./subscriptionSchema');
 
 const typeDefs = gql`
+
 scalar Upload
 
 scalar Void
@@ -18,38 +22,19 @@ type File {
     encoding: String!
 }
 
-type Freelancer {
-  id:String!
-  firstname:String
-  lastname:String
-  phone:String
-  picture:String
-  coverpicture:String
-  email: String
-  password:String
-  about:String
-  portfolio:String
-  occupation:String
-  jobTitle:String
-  hourlyRate:String
-  location:String
-  language:String
-  skill:String
-  education:String
-  certification:String
-  website:String
-  linkedin:String
-  github:String
-  street:String
-  local_govt:String
-  state:String
-  country:String
+type Files {
+  url:String
 }
 
 type Link {
   website:String
   linkedin:String
   github:String
+}
+
+type Section {
+  title:String
+  data:[Service]
 }
 
 type Language {
@@ -103,6 +88,16 @@ startDate:Date
 endDate:Date
 }
 
+type Project {
+  id:Int
+  title:String
+  category:String
+  budget:String
+  description:String
+  image:String
+  createdAt:Date
+}
+
 type Education {
 id:Int!
 institution:String
@@ -130,6 +125,8 @@ type Service {
   delivery_period:String
   search_tag:String
   hourly_rate:String
+  user:User
+  addons:[Addon]
 }
 
 type Addon {
@@ -143,7 +140,7 @@ type Review{
   name:String
   rating:Int
   message:String
-  created_at:String
+  created_at:Date
 }
 
 type Notification {
@@ -202,6 +199,13 @@ password:String
 role:String
 }
 
+input AddonInput {
+  title:String
+  charge:Int
+  service_id:Int
+
+}
+
 type User {
   id: Int!
   firstname:String
@@ -216,11 +220,11 @@ type User {
   role:String
   token:String
   company:String
-  address:[Address]
-  education:[Education]
-  certification:[Certification]
-  portfolio:[Portfolio]
-  experience:[Experience]
+  addresses:[Address]
+  educations:[Education]
+  certifications:[Certification]
+  portfolios:[Portfolio]
+  experiences:[Experience]
 }
 
 input AddressInput {
@@ -253,6 +257,16 @@ title:String
 description:String
 startDate:Date
 endDate:Date
+}
+
+input ProjectInput {
+  id:Int
+  title:String
+  category:String
+  budget:String
+  description:String
+  image:String
+  createdAt:Date
 }
 
 input ExperienceInput {
@@ -295,34 +309,20 @@ input ServiceInput {
   delivery_period:String
   search_tag:String
   hourly_rate:String
+  email:String
+  role:String
+  password:String
+},
+
+input MailInput {
+  email:String
+  subject:String,
+  format:String,
+  text:String,
+  name:String
 }
 
 
-type Section {
-   title:String
-   data:[Product]
-}
-
-type Student {
-   id:Int!
-   firstName:String
-   lastName:String
-   password:String
-   collegeId:String
-   fullName:String
-}
-
-type RandomDie {
-  numSides: Int!
-  rollOnce: Int!
-  roll(numRolls: Int!): [Int]
-}
-
-type FullName {
-  obj:String!
-  fullname:String
-}
- 
 type Message {
   id: Int!
   name:String
@@ -332,65 +332,6 @@ type Message {
   created_at:Date
   content: String
   author: String
-}
-
-type Rate {
-  currency:String
-  rate:String
-}
-
-type Product {
-  product_id:Int
-  product_name:String
-}
-
-type Query {
-
-  getOneUser(id:Int):User
-  getManyUsers:[User]
-
-  handleLogin(data:LoginInput):Boolean
-
-  getOneService(id:Int):Service
-  getManyServices:[Service]
-  getOneServicePlusAddon(id:Int):Service
-  getManyServicesPlusAddon:Service
-
-  testsubscription:String
-  
-  # This is only here to satisfy the requirement that at least one
-  # field be present within the 'Query' type.  This example does not
-  # demonstrate how to fetch uploads back.
-
-  otherFields: Boolean!
-  
-  # test the server
-  test:String
-  getDie(numSides: Int):RandomDie
-  getFull(obj:String):FullName
-  ip:String
-  productByCategory:[Section]
-
-}
-
-type Mutation {
-
-  handleRegisteration(data:RegisterInput):Boolean 
-
-  createOneUser(user:RegisterInput):User
-  createManyUsers:Int
-  updateOneUser(user:UserInput):User
-  deleteOneUser(id:Int):User
-
-  addService(service:ServiceInput):Service
-  updateService(service:ServiceInput):Service
-  deleteService(id:Int):Service
-
-  singleUpload(file: Upload!): File!
-
-  createPost(author: String, comment: String): Post
-  createSomething(id:Int):Result
-  createComment(id:Int,content:String):Comment
 }
 
 type Post {
@@ -407,11 +348,9 @@ type Result {
     id: String
 }
 
-type Subscription {
-  postCreated: Post
-  somethingChanged(id:Int):Result
-  commentAdded:Comment
-}
+${querySchema}
+${mutationSchema}
+${subscriptionSchema}
 
 `;
 
